@@ -1,12 +1,9 @@
 name: LungCancerTrainingCI
-
 conda_env: conda.yaml
-
 entry_points:
   main:
     parameters:
       data_path: {type: string}
       C: {type: float, default: 1.0}
       max_iter: {type: int, default: 1000}
-    
     command: "python modelling.py --data_path {data_path} --C {C} --max_iter {max_iter}"
