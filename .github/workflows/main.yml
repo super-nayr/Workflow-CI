@@ -1,4 +1,4 @@
-name: Train Model CI
+name: Train ML Model CI
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
       DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
 
     steps:
-    - name: 🧾 Checkout Repository
+    - name: 📥 Checkout Repository
       uses: actions/checkout@v3
 
     - name: ⚙️ Setup Miniconda
@@ -29,6 +29,7 @@ jobs:
 
     - name: 🚀 Jalankan Training Model dan Tangkap Run ID
       run: |
+        echo "▶️ Menjalankan modelling.py dengan data survey..."
         TRAINING_OUTPUT=$(python MLProject/modelling.py --data_path MLProject/survey_lung_cancer_clean.csv 2>&1)
 
         echo "--- Captured Python Script Output ---"
@@ -42,5 +43,5 @@ jobs:
           exit 1
         fi
 
-        echo "Run ID yang berhasil ditangkap: ${LATEST_RUN_ID}"
-        echo "run_id=${LAT_
+        echo "✅ Run ID yang berhasil ditangkap: ${LATEST_RUN_ID}"
+        echo "run_id=${LATEST_RUN_ID}" >> $GITHUB_OUTPUT
