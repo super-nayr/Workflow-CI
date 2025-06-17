@@ -1,3 +1,5 @@
+# MLProject/modelling.py
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -22,7 +24,9 @@ def load_data(data_path: str) -> tuple:
         print(f"::error::File data tidak ditemukan di path: {data_path}")
         exit(1)
         
-    target_column = "lung_cancer"
+    # PERBAIKAN FINAL: Nama kolom diubah menjadi huruf kecil sesuai file CSV Anda
+    target_column = "lung_cancer" 
+    
     if target_column not in df.columns:
         print(f"::error::Kolom target '{target_column}' tidak ditemukan di dataset.")
         exit(1)

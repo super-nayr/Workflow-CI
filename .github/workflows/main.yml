@@ -54,16 +54,9 @@ jobs:
             exit 1
           fi
           echo "Run ID yang akan digunakan: $RUN_ID"
-          
-          # Download artifak 'model_files'
           mlflow artifacts download --run-id "${RUN_ID}" --artifact-path "model_files" --dst-path .
-          
           echo "Artifak berhasil diunduh. Membangun Docker image..."
-          
-          # Build Docker image dari folder yang diunduh
           mlflow models build-docker --model-uri "./model_files" --name "${{ secrets.DOCKERHUB_USERNAME }}/lung-cancer-predictor:latest" --enable-mlserver
-            
-          # Push Docker image ke Docker Hub
           docker push "${{ secrets.DOCKERHUB_USERNAME }}/lung-cancer-predictor:latest"
         env:
           DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
