@@ -22,7 +22,7 @@ def load_data(data_path: str) -> tuple:
         print(f"::error::File data tidak ditemukan di path: {data_path}")
         exit(1)
         
-    target_column = "LUNG_CANCER"
+    target_column = "lung_cancer"
     if target_column not in df.columns:
         print(f"::error::Kolom target '{target_column}' tidak ditemukan di dataset.")
         exit(1)
