@@ -1,5 +1,3 @@
-# .github/workflows/main.yml
-
 name: Workflow-CI
 
 on:
@@ -12,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       run_id: ${{ steps.train_step.outputs.run_id }}
-      
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,9 +19,9 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-      
+
       - name: Install dependencies from requirements.txt
-        run: pip install -r MLProject/requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Run MLflow training and get Run ID
         id: train_step
@@ -40,6 +38,7 @@ jobs:
   docker:
     needs: train
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -54,7 +53,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: MLProject/dockerfile
+          file: dockerfile  # ✅ karena dockerfile ada di root
           push: true
           tags: supernayr/lung-cancer-predictor:latest
           build-args: |
