@@ -1,12 +1,16 @@
-name: LungCancerTrainingCI
+# MLProject/MLProject
 
+name: lung-cancer-ci
 conda_env: conda.yaml
 
 entry_points:
   main:
     parameters:
-      data_path: {type: string}
-      C: {type: float, default: 1.0}
+      data_path: {type: string, default: "survey_lung_cancer_clean.csv"}
       max_iter: {type: int, default: 1000}
-    
-    command: "python modelling.py --data_path {data_path} --C {C} --max_iter {max_iter}"
+      C: {type: float, default: 1.0}
+    command: >-
+      python modelling.py 
+      --data_path {data_path} 
+      --max_iter {max_iter} 
+      --C {C}

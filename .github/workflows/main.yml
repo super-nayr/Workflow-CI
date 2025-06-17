@@ -1,47 +1,72 @@
-name: Train ML Model CI
+# .github/workflows/main.yml
+
+name: Workflow-CI
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   train:
     runs-on: ubuntu-latest
-
-    env:
-      DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
-
+    # Sediakan output dari job ini untuk digunakan di job lain
+    outputs:
+      run_id: ${{ steps.train_step.outputs.run_id }}
+      
     steps:
-    - name: 📥 Checkout Repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: ⚙️ Setup Miniconda
-      uses: conda-incubator/setup-miniconda@v2
-      with:
-        environment-file: MLProject/conda.yaml
-        activate-environment: base
-        auto-activate-base: true
+      # Setup environment Python untuk menjalankan MLflow
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: pip install mlflow dagshub scikit-learn pandas
 
-    - name: 📦 Install Dependencies
-      run: |
-        pip install -r MLProject/requirements.txt
+      - name: Run MLflow training and get Run ID
+        id: train_step
+        env:
+          # Pastikan DagsHub/MLflow bisa otentikasi
+          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+        run: |
+          # Jalankan skrip training dari dalam folder MLProject
+          cd MLProject
+          output=$(python modelling.py)
+          cd ..
+          
+          # Ambil baris yang mengandung 'MLflow Run ID' dan ekstrak ID-nya
+          run_id=$(echo "$output" | grep "MLflow Run ID" | awk '{print $4}')
 
-    - name: 🚀 Jalankan Training Model dan Tangkap Run ID
-      run: |
-        echo "▶️ Menjalankan modelling.py dengan data survey..."
-        TRAINING_OUTPUT=$(python MLProject/modelling.py --data_path MLProject/survey_lung_cancer_clean.csv 2>&1)
+          # Cetak ID untuk debug dan teruskan ke langkah selanjutnya
+          echo "Discovered Run ID: $run_id"
+          echo "run_id=$run_id" >> $GITHUB_OUTPUT
 
-        echo "--- Captured Python Script Output ---"
-        echo "$TRAINING_OUTPUT"
-        echo "--- End Captured Output ---"
+  docker:
+    needs: train # Jalankan setelah job 'train' selesai
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-        LATEST_RUN_ID=$(echo "$TRAINING_OUTPUT" | grep "MLflow Run ID:" | cut -d' ' -f4)
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-        if [ -z "$LATEST_RUN_ID" ]; then
-          echo "::error::Tidak dapat menemukan 'MLflow Run ID:' dari log. Skrip Python dipastikan GAGAL."
-          exit 1
-        fi
-
-        echo "✅ Run ID yang berhasil ditangkap: ${LATEST_RUN_ID}"
-        echo "run_id=${LATEST_RUN_ID}" >> $GITHUB_OUTPUT
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: MLProject/dockerfile
+          push: true
+          # Push ke repository Docker Hub Anda
+          tags: supernayr/lung-cancer-predictor:latest
+          # Teruskan Run ID dan Token DagsHub sebagai argumen ke Dockerfile
+          build-args: |
+            MLFLOW_RUN_ID=${{ needs.train.outputs.run_id }}
+            DAGSHUB_TOKEN=${{ secrets.DAGSHUB_TOKEN }}

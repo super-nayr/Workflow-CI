@@ -1,4 +1,6 @@
+
 pandas
 scikit-learn
-mlflow
+mlflow>=2.0
 dagshub
+gunicorn
