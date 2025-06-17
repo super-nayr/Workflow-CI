@@ -16,7 +16,7 @@ ENV DAGSHUB_USER_TOKEN=${DAGSHUB_TOKEN}
 WORKDIR /app
 
 # Salin file requirements dan install
-COPY requirements.txt .
+COPY MLProject/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Port yang akan digunakan oleh server
