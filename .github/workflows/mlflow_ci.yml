@@ -1,0 +1,49 @@
+name: MLflow Training CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  train-model:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: ⚙️ Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: ml-env
+          environment-file: conda.yaml
+          auto-activate-base: false
+
+      - name: 🧪 Install dependencies from pip (if needed)
+        run: |
+          pip install -r requirements.txt
+
+      - name: 🚀 Run Training Script and Capture MLflow Run ID
+        shell: bash
+        env:
+          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
+        run: |
+          echo "📦 Menjalankan training script modelling.py"
+
+          TRAINING_OUTPUT=$(python MLProject/modelling.py --data_path MLProject/survey_lung_cancer_clean.csv 2>&1)
+
+          echo "--- Captured Python Script Output ---"
+          echo "$TRAINING_OUTPUT"
+          echo "--- End Captured Output ---"
+
+          LATEST_RUN_ID=$(echo "$TRAINING_OUTPUT" | grep -oP 'MLflow Run ID: \K\w+')
+
+          if [ -z "$LATEST_RUN_ID" ]; then
+            echo "::error::Tidak dapat menemukan 'MLflow Run ID:' dari log. Skrip Python dipastikan GAGAL."
+            exit 1
+          fi
+
+          echo "✅ Run ID yang berhasil ditangkap: ${LATEST_RUN_ID}"
+          echo "run_id=${LATEST_RUN_ID}" >> $GITHUB_OUTPUT
