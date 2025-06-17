@@ -10,7 +10,6 @@ on:
 jobs:
   train:
     runs-on: ubuntu-latest
-    # Sediakan output dari job ini untuk digunakan di job lain
     outputs:
       run_id: ${{ steps.train_step.outputs.run_id }}
       
@@ -18,35 +17,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Setup environment Python untuk menjalankan MLflow
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
       
-      - name: Install dependencies
-        run: pip install mlflow dagshub scikit-learn pandas
+      - name: Install dependencies from requirements.txt
+        run: pip install -r MLProject/requirements.txt
 
       - name: Run MLflow training and get Run ID
         id: train_step
         env:
-          # Pastikan DagsHub/MLflow bisa otentikasi
           DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          # Jalankan skrip training dari dalam folder MLProject
           cd MLProject
           output=$(python modelling.py)
           cd ..
-          
-          # Ambil baris yang mengandung 'MLflow Run ID' dan ekstrak ID-nya
           run_id=$(echo "$output" | grep "MLflow Run ID" | awk '{print $4}')
-
-          # Cetak ID untuk debug dan teruskan ke langkah selanjutnya
           echo "Discovered Run ID: $run_id"
           echo "run_id=$run_id" >> $GITHUB_OUTPUT
 
   docker:
-    needs: train # Jalankan setelah job 'train' selesai
+    needs: train
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -64,9 +56,7 @@ jobs:
           context: .
           file: MLProject/dockerfile
           push: true
-          # Push ke repository Docker Hub Anda
           tags: supernayr/lung-cancer-predictor:latest
-          # Teruskan Run ID dan Token DagsHub sebagai argumen ke Dockerfile
           build-args: |
             MLFLOW_RUN_ID=${{ needs.train.outputs.run_id }}
             DAGSHUB_TOKEN=${{ secrets.DAGSHUB_TOKEN }}
