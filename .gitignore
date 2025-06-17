@@ -1,0 +1,9 @@
+# Virtual Environment
+/env_saya/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# VS Code editor folder
+.vscode/
