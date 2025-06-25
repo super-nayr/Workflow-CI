@@ -9,7 +9,6 @@ on:
       - main
   workflow_dispatch:
 
-
 env:
   DATA_PATH: MLProject/namadataset_preprocessing/survey_lung_cancer_processed.csv
   MLFLOW_EXPERIMENT_NAME: mlflow-survey-lung-cancer
@@ -75,13 +74,13 @@ jobs:
       - name: Build Docker Image via MLflow
         run: |
           mlflow models build-docker \
-            --model-uri "runs:/$RUN_ID/rf_best_model"
+            --model-uri "runs:/$RUN_ID/rf_best_model" \
+            --name mlproject-model
 
       - name: Tag Docker Image
         run: |
-          docker tag mlflow-pyfunc:latest ${{ env.DOCKER_IMAGE_NAME }}
+          docker tag mlproject-model:latest ${{ env.DOCKER_IMAGE_NAME }}
 
       - name: Push Docker Image
         run: |
           docker push ${{ env.DOCKER_IMAGE_NAME }}
-
