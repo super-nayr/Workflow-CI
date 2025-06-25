@@ -75,9 +75,13 @@ jobs:
       - name: Build Docker Image via MLflow
         run: |
           mlflow models build-docker \
-            --model-uri "runs:/$RUN_ID/rf_best_model" \
-            --name ${{ env.DOCKER_IMAGE_NAME }}
+            --model-uri "runs:/$RUN_ID/rf_best_model"
+
+      - name: Tag Docker Image
+        run: |
+          docker tag mlflow-pyfunc:latest ${{ env.DOCKER_IMAGE_NAME }}
 
       - name: Push Docker Image
         run: |
           docker push ${{ env.DOCKER_IMAGE_NAME }}
+
