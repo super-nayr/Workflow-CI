@@ -1,0 +1,74 @@
+{
+  "dataframe_split": {
+    "columns": [
+      "GENDER",
+      "AGE",
+      "SMOKING",
+      "YELLOW_FINGERS",
+      "ANXIETY",
+      "PEER_PRESSURE",
+      "CHRONIC DISEASE",
+      "FATIGUE",
+      "ALLERGY",
+      "WHEEZING",
+      "ALCOHOL CONSUMING",
+      "COUGHING",
+      "SHORTNESS OF BREATH",
+      "SWALLOWING DIFFICULTY",
+      "CHEST PAIN"
+    ],
+    "data": [
+      [
+        1,
+        61,
+        1,
+        2,
+        2,
+        2,
+        1,
+        1,
+        2,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1
+      ],
+      [
+        0,
+        53,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        1,
+        2,
+        2
+      ],
+      [
+        0,
+        73,
+        1,
+        1,
+        1,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    ]
+  }
+}

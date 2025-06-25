@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/teuku/Downloads/Workflow-CI/MLProject/mlruns/0/717ed653107d41dfa21560e58446560f/artifacts
+end_time: 1750837471636
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 717ed653107d41dfa21560e58446560f
+run_name: flawless-goose-658
+run_uuid: 717ed653107d41dfa21560e58446560f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1750837455438
+status: 3
+tags: []
+user_id: teuku
