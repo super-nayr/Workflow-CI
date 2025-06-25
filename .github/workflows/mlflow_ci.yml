@@ -12,8 +12,8 @@ on:
   workflow_dispatch:
 
 env:
-  DATA_PATH: MLProject/namadataset_preprocessing/creditapproval-data_preprocessing.csv
-  MLFLOW_EXPERIMENT_NAME: mlflow-creditapproval
+  DATA_PATH: MLProject/namadataset_preprocessing/survey_lung_cancer_processed.csv
+  MLFLOW_EXPERIMENT_NAME: mlflow-survey-lung-cancer
   DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/mlproject-model
 
 jobs:
