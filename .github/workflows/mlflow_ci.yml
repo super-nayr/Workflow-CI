@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'MLProject/**'
   pull_request:
     branches:
       - main
   workflow_dispatch:
+
 
 env:
   DATA_PATH: MLProject/namadataset_preprocessing/survey_lung_cancer_processed.csv
