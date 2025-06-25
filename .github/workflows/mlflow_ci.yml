@@ -38,6 +38,7 @@ jobs:
           mlflow run MLProject --env-manager local --entry-point main -P data_path=$(pwd)/${{ env.DATA_PATH }}
 
       - name: Get latest MLflow run_id
+        id: get_run_id
         run: |
           echo "Getting latest run ID..."
           python <<EOF
@@ -48,16 +49,14 @@ jobs:
               raise Exception("Experiment not found.")
           runs = client.search_runs(experiment_ids=[experiment.experiment_id], order_by=["start_time DESC"])
           if not runs:
-              raise Exception("No runs found in the experiment.")
+              raise Exception("No runs found.")
           run_id = runs[0].info.run_id
-          print(f"Latest run ID: {run_id}")
-          with open("${{ github.env }}", "a") as f:
-              f.write(f"RUN_ID={run_id}\n")
+          print(f"::set-output name=run_id::{run_id}")
           EOF
 
       - name: Download Model Artifact from MLflow
         run: |
-          mlflow artifacts download --run-id $RUN_ID --artifact-path rf_best_model --dst-path MLProject/output
+          mlflow artifacts download --run-id ${{ steps.get_run_id.outputs.run_id }} --artifact-path rf_best_model --dst-path MLProject/output
 
       - name: Upload model artifact
         uses: actions/upload-artifact@v4
@@ -74,12 +73,15 @@ jobs:
       - name: Build Docker Image via MLflow
         run: |
           mlflow models build-docker \
-            --model-uri "runs:/$RUN_ID/rf_best_model" \
-            --name mlproject-model
+            --model-uri "runs:/${{ steps.get_run_id.outputs.run_id }}/rf_best_model"
 
       - name: Tag Docker Image
         run: |
-          docker tag mlproject-model:latest ${{ env.DOCKER_IMAGE_NAME }}
+          docker tag mlflow-pyfunc:latest ${{ env.DOCKER_IMAGE_NAME }}
+
+      - name: Show Docker Image List
+        run: |
+          docker images
 
       - name: Push Docker Image
         run: |
